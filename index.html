@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Authorized Device Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 30px; text-align: center; background: #f9f9f9; }
+        .card { max-width: 500px; margin: auto; padding: 20px; background: white; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        button { padding: 12px 24px; font-size: 16px; font-weight: bold; cursor: pointer; background: #28a745; color: white; border: none; border-radius: 5px; }
+        pre { text-align: left; background: #222; color: #00ff00; padding: 15px; border-radius: 5px; overflow-x: auto; display: none; }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <h2>Device & Location Diagnostics</h2>
+    <p>This is a safe diagnostic test link. Click the button below to authorize the collection of device details and location data.</p>
+    
+    <button onclick="runDiagnostic()">Authorize & Run Test</button>
+    
+    <h3 id="resultTitle" style="display:none; margin-top:20px;">Test Results:</h3>
+    <pre id="output"></pre>
+</div>
+
+<script>
+function runDiagnostic() {
+    let results = {
+        device: {
+            browser: navigator.userAgent,
+            operatingSystem: navigator.platform,
+            language: navigator.language,
+            screenSize: `${window.screen.width}x${window.screen.height}`
+        }
+    };
+
+    if ("geolocation" in navigator) {
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+                results.location = {
+                    latitude: position.coords.latitude,
+                    longitude: position.coords.longitude,
+                    accuracyInMeters: position.coords.accuracy
+                };
+                showData(results);
+            },
+            (error) => {
+                results.location = `Permission denied: ${error.message}`;
+                showData(results);
+            }
+        );
+    } else {
+        results.location = "Geolocation not supported.";
+        showData(results);
+    }
+}
+
+function showData(data) {
+    document.getElementById("resultTitle").style.display = "block";
+    const out = document.getElementById("output");
+    out.textContent = JSON.stringify(data, null, 2);
+    out.style.display = "block";
+}
+</script>
+
+</body>
+</html>
